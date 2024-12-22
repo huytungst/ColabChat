@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chatbot</title>
+  <title>User-Specific Chatbot</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,7 +15,7 @@
       height: 100vh;
       background-color: #f4f4f9;
     }
-    #chat-container {
+    #container {
       width: 400px;
       background: white;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -30,6 +30,9 @@
       padding: 10px;
       margin-bottom: 10px;
       background: #f9f9f9;
+    }
+    #setup {
+      margin-bottom: 10px;
     }
     .message {
       margin: 5px 0;
@@ -62,7 +65,12 @@
   </style>
 </head>
 <body>
-  <div id="chat-container">
+  <div id="container">
+    <div id="setup">
+      <label for="backend-url">Enter your backend URL:</label>
+      <input id="backend-url" type="text" placeholder="e.g., https://xxxx.ngrok.io">
+      <button id="connect-button">Connect</button>
+    </div>
     <div id="messages"></div>
     <div id="input-area">
       <input id="user-input" type="text" placeholder="Type your message">
@@ -71,11 +79,13 @@
   </div>
 
   <script>
-    const API_URL = "YOUR_NGROK_PUBLIC_URL/chat";
+    let API_URL = "";
 
     const messagesContainer = document.getElementById("messages");
     const userInput = document.getElementById("user-input");
     const sendButton = document.getElementById("send-button");
+    const connectButton = document.getElementById("connect-button");
+    const backendInput = document.getElementById("backend-url");
 
     const appendMessage = (text, sender) => {
       const messageDiv = document.createElement("div");
@@ -85,7 +95,17 @@
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     };
 
+    connectButton.addEventListener("click", () => {
+      API_URL = backendInput.value.trim() + "/chat";
+      appendMessage("Connected to your backend!", "bot");
+    });
+
     sendButton.addEventListener("click", async () => {
+      if (!API_URL) {
+        appendMessage("Please connect to your backend first.", "bot");
+        return;
+      }
+
       const userMessage = userInput.value.trim();
       if (!userMessage) return;
 
@@ -101,7 +121,7 @@
         const data = await response.json();
         appendMessage(data.response, "bot");
       } catch (error) {
-        appendMessage("Error: Unable to reach the server.", "bot");
+        appendMessage("Error: Unable to reach your backend.", "bot");
       }
     });
   </script>
